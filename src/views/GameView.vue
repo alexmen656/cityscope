@@ -3,32 +3,33 @@
     <div class="header">
       <h1>{{ cityName }}</h1>
       <div class="user-info">
-        <span>{{ username }}</span>
-        <span @click="showLeaderboard = true" class="leaderboard-link"
+        <span @click="fetchLeaderboard" class="leaderboard-link"
           >Leaderboard</span
         >
+        <span><i class="fa-solid fa-user"></i> {{ username }}</span>
       </div>
     </div>
     <div id="map" style="width: 100%; height: 100vh"></div>
     <div id="score">Score: {{ score }}</div>
-    <button v-if="guessSubmitted" @click="nextCity">Weiter</button>
+    <button @click="nextCity">{{ guessSubmitted ? "Weiter" : "Skip" }}</button
+    ><!--v-if="guessSubmitted"-->
 
     <div v-if="showLeaderboard" class="modal">
       <div class="modal-content">
         <span class="close" @click="showLeaderboard = false">&times;</span>
         <h2>Leaderboard</h2>
         <div class="podium">
-          <div class="second">
+          <div v-if="leaderboard[1]" class="second">
             <div class="position">2.</div>
             <div class="name">{{ leaderboard[1].name }}</div>
             <div class="score">{{ leaderboard[1].score }}</div>
           </div>
-          <div class="first">
+          <div v-if="leaderboard[0]" class="first">
             <div class="position">1.</div>
             <div class="name">{{ leaderboard[0].name }}</div>
             <div class="score">{{ leaderboard[0].score }}</div>
           </div>
-          <div class="third">
+          <div v-if="leaderboard[2]" class="third">
             <div class="position">3.</div>
             <div class="name">{{ leaderboard[2].name }}</div>
             <div class="score">{{ leaderboard[2].score }}</div>
@@ -63,20 +64,50 @@ export default {
       map: shallowRef(null),
       difficulty: localStorage.getItem("difficulty"),
       username: localStorage.getItem("username"),
+      uuid: localStorage.getItem("uuid"),
       guessSubmitted: false,
-      leaderboard: [
-        { name: "Player1", score: 100 },
-        { name: "Player2", score: 90 },
-        { name: "Player3", score: 80 },
-      ],
+      leaderboard: [],
       randomCity: {},
     };
   },
   async mounted() {
     this.initRadius();
+    this.fetchUserScore();
     await this.initMap();
   },
   methods: {
+    fetchLeaderboard() {
+      fetch("https://alex.polan.sk/cityscope/leaderboard.php")
+        .then((response) => response.json())
+        .then((data) => {
+          this.leaderboard = data;
+          this.showLeaderboard = true;
+        });
+    },
+    fetchUserScore() {
+      fetch(`https://alex.polan.sk/cityscope/leaderboard.php?uuid=${this.uuid}`)
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.score !== undefined) {
+            this.score = Number(data.score);
+          } else {
+            console.error("Error fetching user score:", data.error);
+          }
+        });
+    },
+    updateUserScore(count) {
+      fetch("https://alex.polan.sk/cityscope/leaderboard.php", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          action: "update",
+          uuid: this.uuid,
+          score: count,
+        }),
+      });
+    },
     initRadius() {
       let radius;
       switch (this.difficulty) {
@@ -198,6 +229,7 @@ export default {
 
           if (this.guessed) {
             this.score += 1;
+            this.updateUserScore(1);
           }
 
           this.guessSubmitted = true;
@@ -234,7 +266,7 @@ export default {
       this.cityState = randomCity.state;
 
       // Füge Logik hinzu, falls du spezielle Vorbereitungen für die nächste Runde brauchst
-      console.log(`Neue Stadt: ${this.cityName}, ${this.cityState}`);
+      //console.log(`Neue Stadt: ${this.cityName}, ${this.cityState}`);
     },
 
     /* nextCity() {
