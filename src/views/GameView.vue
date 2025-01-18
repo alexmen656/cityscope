@@ -3,15 +3,36 @@
     <div class="header">
       <h1>{{ cityName }}</h1>
       <div class="user-info">
+        <select
+          class="difficulty"
+          v-model="difficulty"
+          @change="updateDifficulty"
+        >
+          <option value="very easy">Very Easy</option>
+          <option value="easy">Easy</option>
+          <option value="medium">Medium</option>
+          <option value="hard">Hard</option>
+          <option value="very hard">Very Hard</option>
+        </select>
         <span @click="fetchLeaderboard" class="leaderboard-link"
           >Leaderboard</span
         >
-        <span><i class="fa-solid fa-user"></i> {{ username }}</span>
+        <span @click="logout()"
+          ><i class="fa-solid fa-user"></i> {{ username }}</span
+        >
       </div>
     </div>
     <div id="map" style="width: 100%; height: 100vh"></div>
-    <div id="score">Score: {{ score }}</div>
-    <button @click="nextCity">{{ guessSubmitted ? "Weiter" : "Skip" }}</button
+    <div id="score" class="score2">Score: {{ score }}</div>
+    <button class="nextCity" @click="nextCity">
+      <i
+        :class="
+          guessSubmitted
+            ? 'fa-solid fa-arrow-right'
+            : 'fa-solid fa-rotate-right'
+        "
+      ></i>
+      {{ guessSubmitted ? "Next" : "Skip" }}</button
     ><!--v-if="guessSubmitted"-->
 
     <div v-if="showLeaderboard" class="modal">
@@ -39,8 +60,18 @@
           <li
             v-for="(player, index) in leaderboard.slice(3)"
             :key="player.name"
+            :class="{
+              striped: index % 2 === 0,
+              'non-striped': index % 2 !== 0,
+            }"
+            class="l_li"
           >
-            {{ index + 4 }}. {{ player.name }}: {{ player.score }}
+            <span class="place">{{ index + 4 }}. Place</span>
+            <span
+              >{{ player.name
+              }}<!--:--></span
+            >
+            <span class="score">{{ player.score }}</span>
           </li>
         </ul>
       </div>
@@ -50,6 +81,7 @@
 
 <script>
 import cities from "../assets/cities.json";
+import JSConfetti from "js-confetti";
 import { shallowRef } from "vue";
 
 export default {
@@ -71,6 +103,9 @@ export default {
     };
   },
   async mounted() {
+    if (!this.username || !this.uuid) {
+      this.$router.push("/");
+    }
     this.initRadius();
     this.fetchUserScore();
     await this.initMap();
@@ -108,29 +143,42 @@ export default {
         }),
       });
     },
+    updateDifficulty() {
+      localStorage.setItem("difficulty", this.difficulty);
+      this.initRadius();
+    },
     initRadius() {
       let radius;
+      let points_to_win;
       switch (this.difficulty) {
         case "very easy":
           radius = 1500;
+          points_to_win = 1;
           break;
         case "easy":
           radius = 1200;
+          points_to_win = 2;
           break;
         case "medium":
           radius = 1000;
+          points_to_win = 3;
           break;
         case "hard":
           radius = 500;
+          points_to_win = 5;
           break;
         case "very hard":
           radius = 250;
+          points_to_win = 10;
           break;
         default:
-          radius = 2000;
+          radius = 1200;
+          points_to_win = 2;
       }
       radius = radius * 1000; //m -> km
       this.radius = radius;
+      this.points_to_win = points_to_win;
+
     },
     async initMap() {
       await window.mapkit.init({
@@ -201,7 +249,7 @@ export default {
           new DOMPoint(event.pageX, event.pageY)
         );
 
-        if (event.shiftKey) {
+        if (event.shiftKey && !this.guessSubmitted) {
           const guessAnnotation = new window.mapkit.MarkerAnnotation(
             coordinate,
             {
@@ -228,8 +276,10 @@ export default {
           );
 
           if (this.guessed) {
-            this.score += 1;
-            this.updateUserScore(1);
+            this.score += this.points_to_win;
+            this.updateUserScore(this.points_to_win);
+            const jsConfetti = new JSConfetti();
+            jsConfetti.addConfetti();
           }
 
           this.guessSubmitted = true;
@@ -290,6 +340,18 @@ export default {
     deg2rad(deg) {
       return deg * (Math.PI / 180);
     },
+    logout() {
+      if (
+        confirm(
+          "Are you sure you want to log out?\nYou will lose access to this account!"
+        )
+      ) {
+        localStorage.removeItem("difficulty");
+        localStorage.removeItem("username");
+        localStorage.removeItem("uuid");
+        this.$router.push("/");
+      }
+    },
   },
 };
 </script>
@@ -317,7 +379,7 @@ export default {
   right: 10px;
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: start;
   z-index: 1000;
 }
 
@@ -334,33 +396,38 @@ h1 {
   align-items: center;
 }
 
-.user-info span {
+.user-info span,
+.difficulty {
   color: white;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(0, 0, 0, 0.7);
   padding: 10px;
   border-radius: 5px;
+  font-size: 16px;
+  border: none;
+}
+.difficulty {
+  height: 39px;
   margin-right: 10px;
 }
 
 .leaderboard-link {
   color: white;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(0, 0, 0, 0.7);
   padding: 10px;
   border-radius: 5px;
   text-decoration: none;
+  font-size: 16px;
+  margin-right: 10px;
 }
 
 .leaderboard-link:hover {
-  background-color: rgba(0, 0, 0, 0.7);
+  background-color: rgba(0, 0, 0, 0.9);
 }
 
 #score {
   position: absolute;
   bottom: 10px;
   left: 10px;
-  background-color: white;
-  padding: 5px;
-  border-radius: 5px;
 }
 
 button {
@@ -425,6 +492,11 @@ button {
   padding: 10px;
   border-radius: 10px;
   height: 130px;
+  width: 140px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
 .second {
@@ -433,6 +505,11 @@ button {
   padding: 10px;
   border-radius: 10px;
   height: 100px;
+  width: 140px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
 .third {
@@ -441,6 +518,11 @@ button {
   padding: 10px;
   border-radius: 10px;
   height: 80px;
+  width: 140px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
 .position {
@@ -452,7 +534,57 @@ button {
   font-size: 18px;
 }
 
-.score {
-  font-size: 16px;
+.score2,
+.nextCity {
+  font-size: 24px;
+  color: white;
+  background-color: rgba(0, 0, 0, 0.7);
+  padding: 10px;
+  border-radius: 5px;
+}
+
+.nextCity:focus,
+.nextCity:focus-visible,
+.difficulty {
+  /*border: none !important;*/
+  outline: none !important;
+}
+
+h2 {
+  text-align: center;
+  margin-top: 10px;
+  padding-left: 18.5px;
+}
+
+.l_li {
+  display: flex;
+  /*justify-content: space-between;*/
+  padding: 2px;
+}
+
+.l_li > span {
+  flex: 1;
+  text-align: center;
+}
+
+.l_li > .score {
+  text-align: end;
+}
+
+.l_li > .place {
+  text-align: start;
+}
+
+.l_li.striped {
+  background-color: #cdcdcd;
+}
+
+.l_li.non-striped {
+  background-color: #ffffff;
+}
+
+ul {
+  margin: 0;
+  padding: 10px;
 }
 </style>

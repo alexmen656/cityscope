@@ -2,11 +2,23 @@
   <div class="page-container">
     <div class="overlay">
       <h1 class="title">CityScope</h1>
+      <span class="alert">
+        Read the
+        <strong
+          ><router-link to="/instructions">INSTRUCTIONS</router-link></strong
+        >
+        first!</span
+      >
       <div class="form-container">
         <form @submit.prevent="registerUser">
           <div class="form-group">
             <label for="username">Username:</label>
-            <input type="text" id="username" v-model="username" />
+            <input
+              type="text"
+              id="username"
+              v-model="username"
+              maxlength="10"
+            />
           </div>
           <div class="form-group">
             <label for="difficulty">Difficulty:</label>
@@ -19,6 +31,9 @@
             </select>
           </div>
           <button type="submit" class="save-button">Save</button>
+          <button @click="openInstructions()" class="instructions-button">
+            INSTRUCTIONS!
+          </button>
         </form>
       </div>
     </div>
@@ -35,6 +50,9 @@ export default {
     };
   },
   methods: {
+    openInstructions() {
+      this.$router.push("/instructions");
+    },
     registerUser() {
       fetch("https://alex.polan.sk/cityscope/leaderboard.php", {
         method: "POST",
@@ -87,7 +105,7 @@ export default {
 
 .title {
   font-size: 4em;
-  margin-bottom: 20px;
+  margin-bottom: 5px;
   color: #fff;
 }
 
@@ -128,9 +146,35 @@ select {
   border: none;
   border-radius: 5px;
   cursor: pointer;
+  margin-bottom: 10px;
 }
 
 .save-button:hover {
   background-color: #0056b3;
+}
+
+.instructions-button {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.instructions-button:hover {
+  background-color: #0056b3;
+}
+
+.alert {
+  color: white;
+  margin-bottom: 20px;
+  font-size: 16px;
+}
+
+.alert > strong > a {
+  color: white;
 }
 </style>

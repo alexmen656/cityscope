@@ -3,6 +3,7 @@ import { createRouter, createWebHistory } from "vue-router";
 // Importiere deine Komponenten
 import StartView from "@/views/StartView.vue";
 import GameView from "@/views/GameView.vue";
+import InstructionsView from "@/views/InstructionsView.vue";
 
 const routes = [
   {
@@ -14,6 +15,11 @@ const routes = [
     path: "/game",
     name: "GameView",
     component: GameView,
+  },
+  {
+    path: "/instructions",
+    name: "InstructionsView",
+    component: InstructionsView,
   },
 ];
 
