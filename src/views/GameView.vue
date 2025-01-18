@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="header">
-      <h1>{{ cityName }}</h1>
+      <h1>City to guess: <strong>{{ cityName }}</strong></h1>
       <div class="user-info">
         <select
           class="difficulty"
