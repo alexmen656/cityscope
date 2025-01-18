@@ -11,7 +11,6 @@ CityScope is an interactive geography game designed to test your knowledge of ci
   - Hard: Radius of 500 km
   - Very Hard: Radius of 250 km
 - **Leaderboard**: Compare your performance with other players.
-- **Responsive Design**: Play on any device with a modern browser.
 
 ## How to Play
 1. **Register**: Create a username and choose your preferred difficulty level.
@@ -21,6 +20,12 @@ CityScope is an interactive geography game designed to test your knowledge of ci
    - Hold **Shift** and move the mouse to preview the radius size before placing it.
 4. **Submit Your Guess**: Confirm your guess to see if the city falls within your radius.
 5. **Check the Leaderboard**: Track your progress and see how you rank among other players.
+
+## Technologies Used
+- Vue.js
+- MapKit JS
+- PHP
+- MySQL
 
 ## Project setup
 ```
