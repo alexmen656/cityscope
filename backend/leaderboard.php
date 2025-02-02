@@ -27,7 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         }
     } else {
         // Fetch leaderboard
-        $sql = "SELECT name, score FROM leaderboard ORDER BY score DESC LIMIT 5";
+        $sql = "SELECT name, score FROM leaderboard ORDER BY score DESC";
         $result = $conn->query($sql);
 
         $leaderboard = [];

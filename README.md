@@ -2,6 +2,11 @@
 
 CityScope is an interactive geography game designed to test your knowledge of cities in the USA. The game challenges players to identify the location of a randomly selected city on a map by placing a radius around their guessed location. The closer you are, the more likely you are to score points!
 
+## Demo
+~~Old demo: [https://www.control-center.eu](https://www.control-center.eu/)~~
+New demo: [https://cityscope.alex.polan.sk](https://cityscope.alex.polan.sk/)
+
+https://www.control-center.eu/
 ## Features
 - **Interactive Gameplay**: Place a radius on the map to guess the location of a city.
 - **Difficulty Levels**: Choose from five levels of difficulty to match your expertise:
