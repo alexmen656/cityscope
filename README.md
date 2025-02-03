@@ -6,7 +6,6 @@ CityScope is an interactive geography game designed to test your knowledge of ci
 ~~Old demo: [https://www.control-center.eu](https://www.control-center.eu/)~~
 New demo: [https://cityscope.alex.polan.sk](https://cityscope.alex.polan.sk/)
 
-https://www.control-center.eu/
 ## Features
 - **Interactive Gameplay**: Place a radius on the map to guess the location of a city.
 - **Difficulty Levels**: Choose from five levels of difficulty to match your expertise:
